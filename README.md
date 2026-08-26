@@ -28,4 +28,4 @@ Este aplicativo foi desenvolvido com foco na **acessibilidade, inclusão e facil
 
 ---
 Feito com dedicação por Vânia.
-Beijos carinhosos 
+
