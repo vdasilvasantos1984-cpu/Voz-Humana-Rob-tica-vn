@@ -1,1 +1,93 @@
 A estrutura visual da página (caixa de texto, seletor de voz, botões e scripts do navegador).
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App de Voz - Conversor de Texto</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="container">
+    <h1>🎙️ Leitor de Voz</h1>
+    
+    <textarea id="text-input" placeholder="Digite ou cole o seu texto aqui..."></textarea>
+    
+    <select id="voice-select">
+      <option value="">Carregando vozes disponíveis...</option>
+    </select>
+
+    <div class="controls">
+      <button id="btn-play" class="btn-play">▶️ Ouvir</button>
+      <button id="btn-pause" class="btn-pause">⏸️ Pausar</button>
+      <button id="btn-stop" class="btn-stop">⏹️ Parar</button>
+    </div>
+  </div>
+
+  <script>
+    const synth = window.speechSynthesis;
+    const textInput = document.getElementById('text-input');
+    const voiceSelect = document.getElementById('voice-select');
+    const btnPlay = document.getElementById('btn-play');
+    const btnPause = document.getElementById('btn-pause');
+    const btnStop = document.getElementById('btn-stop');
+
+    let voices = [];
+
+    function populateVoiceList() {
+      voices = synth.getVoices();
+      voiceSelect.innerHTML = '';
+      
+      voices.forEach((voice, i) => {
+        const option = document.createElement('option');
+        option.textContent = `${voice.name} (${voice.lang})`;
+        option.setAttribute('data-lang', voice.lang);
+        option.setAttribute('data-name', voice.name);
+        if (voice.default) {
+          option.textContent += ' — padrão';
+        }
+        voiceSelect.appendChild(option);
+      });
+    }
+
+    populateVoiceList();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = populateVoiceList;
+    }
+
+    btnPlay.addEventListener('click', () => {
+      if (synth.speaking && synth.paused) {
+        synth.resume();
+        return;
+      }
+
+      if (textInput.value !== '') {
+        const utterThis = new SpeechSynthesisUtterance(textInput.value);
+        const selectedOption = voiceSelect.selectedOptions[0].getAttribute('data-name');
+        
+        for (let i = 0; i < voices.length; i++) {
+          if (voices[i].name === selectedOption) {
+            utterThis.voice = voices[i];
+            break;
+          }
+        }
+        
+        synth.speak(utterThis);
+      }
+    });
+
+    btnPause.addEventListener('click', () => {
+      if (synth.speaking) {
+        synth.pause();
+      }
+    });
+
+    btnStop.addEventListener('click', () => {
+      if (synth.speaking) {
+        synth.cancel();
+      }
+    });
+  </script>
+</body>
+</html>
